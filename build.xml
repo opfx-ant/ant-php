@@ -151,6 +151,16 @@
 	
 	<target name='default' depends='bootstrap'/>
 	
+	<target name='clean'>
+		<delete dir="${build.dir}"/>
+	</target>
+	
+	<target name='clean-all'>
+		<delete dir="${build.dir}"/>
+		<delete dir="${lib.dir}"/>
+	</target>
+	
+	
 	<target name='bootstrap'>
 		<available classname='org.apache.ivy.Ivy' property='ivy.available' />
 		<get src='http://central.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar'	 dest='${build.tool.dir}' unless:set='ivy.available' />
