@@ -35,6 +35,8 @@
 			<fileset dir='${lib.dir}/test'/>
 		</path>
 		<property file='${basedir}/tool.properties'/>
+		<tstamp prefix='script'/>
+		<property name='version.script' value='${script.DSTAMP}${script.TSTAMP}'/>
 	</target>	
 	
 	<target name='generate-sources' depends='init' >
@@ -54,17 +56,31 @@
 	
 	<target name='process-sources' depends='generate-sources'/>
 	
-	<target name='retrieve-tools' depends='init'>
-	
+	<target name='generate-resources' depends='process-sources'>
+		<delete dir='${generated.resources.dir}/script'/>
+				
+		<copy todir='${generated.resources.dir}/script'>
+			<fileset dir='${php.main.src.dir}'/>
+			<chainedmapper>
+				<flattenmapper/>
+				<regexpmapper from='(.*)\.php' to='\1${version.script}.php' casesensitive='no'/>
+			</chainedmapper>
+			<filterset>
+				<propertyset refid='tool.version' />
+			</filterset>
+		</copy>
 	</target>
 	
-	<target name='process-resources' depends='retrieve-tools'>
+	<target name='process-resources' depends='generate-resources'>
 		<sync todir='${java.resources.bin.dir}' failonerror='false'>
-			<fileset dir='${lib.dir}' includes='tool/*, license/**'/>			
+			<fileset dir='${lib.dir}' includes='tool/*, license/**'/>
+			<fileset dir='${generated.resources.dir}' includes='script/*'/>			
 		</sync>
+		
 	</target>
 	
 	<target name='compile-java-main' depends='process-sources'>
+		<mkdir dir='${java.main.bin.dir}'/>
 		<javac destdir='${java.main.bin.dir}' classpathref='classpath.compile' source='${jvm.version}' target='${jvm.version}' includeantruntime='no' fork='true'>
 			<src path='${java.main.src.dir}' />			
 			<src path='${java.generated.src.dir}'/>

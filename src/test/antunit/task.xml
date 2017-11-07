@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="task" xmlns:unless="ant:unless" xmlns:php="antlib:org.opfx.ant.php" xmlns:au="antlib:org.apache.ant.antunit">
+
+
+	<dirname property='antunit.dir.name' file='${ant.file.task}'/>
+	<property name='antunit.dir' location='${antunit.dir.name}'/>
+	<property name='antunit.resources.dir' location='${antunit.dir}/../resources'/>
+	<property name='antunit.work.dir' location='${antunit.dir}/../../../build/work'/>
+
+
+	 <extension-point name='init'/>	
+
+	
+
+	<target name='setUp' depends='init'>
+		
+		<property name='project.name' value='project'/>
+		
+		<!-- copy test project to the work directory -->
+		<mkdir dir='${antunit.work.dir}'/>
+		<sync todir='${antunit.work.dir}' overwrite='true'>
+			<fileset dir='${antunit.resources.dir}/php'/>
+		</sync>
+		<var name='basedir' value='${antunit.work.dir}/${project.name}'/>
+		
+		<!-- define the layout of the test project -->
+		
+		<property name='main.src.dir' location='${basedir}/src'/>
+		<property name='test.src.dir' location='${basedir}/tests'/>
+		<property name='build.dir' location='${basedir}/build'/>
+		<property name='dist.dir' location='${build.dir}/dist'/>
+		<property name='reports.dir' location='${build.dir}/reports'/>  
+		
+		<au:logcapturer/>
+	</target>
+	
+	<target name='tearDown' unless='teardown.skip'>
+		<delete dir='${antunit.work.dir}'/>
+	</target>
+	
+	<macrodef name="assertfiledoesntcontain" backtrace="no">
+		<attribute name="file"/>
+		<attribute name="text"/>
+		<attribute name="message" default="Assertion failed."/>
+		<sequential>
+			<au:assertFalse>
+				<isfileselected file="@{file}">
+					<contains text="@{text}"/>
+				</isfileselected>
+			</au:assertFalse>
+		</sequential>
+	</macrodef>
+	<macrodef name="assertfilecontains" backtrace="no">
+		<attribute name="file"/>
+		<attribute name="text"/>
+		<attribute name="message" default="Assertion failed."/>
+		<sequential>
+			<au:assertTrue message="@{message}">
+				<isfileselected file="@{file}">
+					<contains text="@{text}"/>
+				</isfileselected>
+			</au:assertTrue>
+		</sequential>
+	</macrodef>
+	
+	<scriptdef name="var" language="javascript">
+    <attribute name='name' />
+    <attribute name='value'/>
+	    <![CDATA[    
+            project.setProperty(attributes.get("name"), attributes.get("value"));
+        ]]> 
+    </scriptdef>
+   
+
+</project>

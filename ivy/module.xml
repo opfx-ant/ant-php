@@ -27,6 +27,11 @@
 		<!-- required to prevent xsl transformation errors while processing antunit logs -->
 		<dependency org="org.apache.ant" name="ant-junit" rev="1.9.3" conf="test->test(*)"/>
 		<dependency org="xalan" name="xalan" rev="2.7.2" conf="test->master"/>
-		<dependency org="xalan" name="serializer" rev="2.7.2" conf="test->master"/> 		
+		<dependency org="xalan" name="serializer" rev="2.7.2" conf="test->master"/> 
+		
+		<dependency org="sebastianbergman" name="phpunit" rev="6.4.2" conf="tool->default(*)">
+			<artifact name="phpunit" type="tool" ext="phar" url="https://phar.phpunit.de/phpunit-6.4.2.phar"/>
+			<artifact name="LICENSE" type="license" ext="" url="https://raw.githubusercontent.com/sebastianbergmann/phpunit/6.4.2/LICENSE"/>
+		</dependency>		
 	</dependencies>
 </ivy-module>

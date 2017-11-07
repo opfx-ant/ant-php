@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<antlib xmlns:this="ant:current">
+	<taskdef name="lint" classname="org.opfx.ant.php.task.Lint"/>
+	<taskdef name="unit" classname="org.opfx.ant.php.task.Unit"/>
+</antlib>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<stringAttribute key="bad_container_name" value="\ant-php\.settings\launches\p"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/ant-php"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="PHP_HOME" value="O:\\work\\tool\\eclipse\\.p2\\default\\plugins\\com.zend.php.debug.debugger.php56.win32_13.0.1.v20151112-2045\\resources\\php56\\"/>
+</mapAttribute>
+<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.apache.tools.ant.Main"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-f ${project_loc}/src/test/antunit/task/lint-test.xml -propertyfile ${project_loc}/default.properties"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ant-php"/>
+</launchConfiguration>

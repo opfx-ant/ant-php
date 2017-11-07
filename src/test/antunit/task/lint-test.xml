@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="default" name="lint-test" basedir="../../../../" xmlns:php="antlib:org.opfx.ant.php" xmlns:au="antlib:org.apache.ant.antunit">
+
+	
+	<import file="../task.xml" as="task" />
+
+	
+	<target name="default" >
+		<php:lint srcdir="O:\work\opfx\proj\ant\master\ant-php\poc\money\src" destdir="O:\work\opfx\proj\ant\master\ant-php\poc\money\bin"/>
+	
+	</target>
+	
+	<target name="testWithEmptySrcDir">
+		<delete dir="${main.src.dir}"/>
+		<au:assertFileDoesntExist file="${main.src.dir}"/>
+		<mkdir dir="${main.src.dir}"/>
+		<php:lint srcdir="${main.src.dir}" destdir="${bin.dir}"/>
+	</target>
+	
+	<target name="testRequiredAttrsMissingFails">
+		<au:expectfailure expectedmessage="'srcdir' attribute must be set, or at least one fileset must be given.">
+			<php:lint/>
+		</au:expectfailure>
+	</target>
+	
+</project>

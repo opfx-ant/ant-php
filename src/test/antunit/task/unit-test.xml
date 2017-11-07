@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="default" name="lint-test" basedir="../../../../" xmlns:php="antlib:org.opfx.ant.php" xmlns:au="antlib:org.apache.ant.antunit">
+
+
+	<import file="../task.xml" as="task" />
+
+	<target name="init" extensionOf="task.init">
+		
+	</target>
+        
+
+	<target name='default' depends='setUp'>
+		<php:unit 
+			srcdir='${test.src.dir}' 
+			bootstrap="${main.src.dir}/autoload.php"
+			logdir='${reports.dir}'
+			whitelist='${main.src.dir}'
+			parallel='false'/>
+	</target>
+	
+	<target name='default1'>
+		<php:unit dir ="O:/work/opfx/proj/ant/master/ant-php/build/work/money" 
+			srcdir="O:/work/opfx/proj/ant/master/ant-php/build/work/money/tests" 
+			bootstrap="O:/work/opfx/proj/ant/master/ant-php/build/work/money/src/autoload.php"
+			logdir="O:/work/opfx/proj/ant/master/ant-php/build/work/money/build/report"
+			whitelist="O:/work/opfx/proj/ant/master/ant-php/build/work/money/src"
+			parallel="true"/>
+
+		
+		<!--
+		<php:unit whitelist= 
+			workdir ="O:/work/opfx/proj/ant/master/ant-php/build/work/money/" 
+			dir="O:/work/opfx/proj/ant/master/ant-php/build/work/money/tests" 
+			bootstrap="O:/work/opfx/proj/ant/master/ant-php/build/work/money/src/autoload.php" 
+			parallel="true"/>
+			-->
+	</target>
+</project>
