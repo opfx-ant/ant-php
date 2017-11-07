@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="default" name="ant-php" xmlns:if="ant:if"
+	xmlns:unless="ant:unless" xmlns:ivy="antlib:org.apache.ivy.ant"
+	xmlns:au="antlib:org.apache.ant.antunit">
+
+	<property file="build.properties"/>
+	<property file="default.properties"/>
+	
+	<target name='retrieve-dependencies-init'>
+		<!-- 
+			if the version.properties file exists and is up to date skip all ivy task
+			as it means we have all the required dependencies
+		-->	
+
+		<uptodate property='ivy.skip' srcfile='${ivy.metadata}' targetfile='${basedir}/tool.properties' />
+	</target>	
+	
+	<target name='retrieve-dependencies' depends='retrieve-dependencies-init' unless='ivy.skip'>
+		<ivy:resolve file='${ivy.metadata}' log='${ivy.log.level}'/>
+		<ivy:retrieve conf='compile,test' pattern='${lib.dir}/[conf]/[artifact]-[revision].[ext]' type='jar' log='${ivy.log.level}'/>
+		<ivy:retrieve conf='tool' pattern='${lib.dir}/[conf]/[artifact]-[revision].[ext]' type='tool' log='${ivy.log.level}'/>
+		<ivy:retrieve conf='tool' pattern='${lib.dir}/[type]/[module]/[artifact]' type='license' log='${ivy.log.level}'/>
+		<!--
+		<ivy:cachepath pathid='classpath.compile' conf='compile'/>
+		-->
+		<ivy:artifactproperty name='version.[module]' value='[revision]' conf='tool'/>
+		<echoproperties prefix='version' destfile='${basedir}/tool.properties'/>		
+	</target>	
+	
+	<target name='init' depends='retrieve-dependencies'>
+		<path id='classpath.compile'>
+			<fileset dir='${lib.dir}/compile'/>
+		</path>	
+		<path id='classpath.test'>
+			<fileset dir='${lib.dir}/test'/>
+		</path>
+		<property file='${basedir}/tool.properties'/>
+	</target>	
+	
+	<target name='generate-sources' depends='init' >
+		<mkdir dir='${java.generated.src.dir}'/>
+		
+		<propertyset id="tool.version">
+			<propertyref prefix="version"/>
+		</propertyset>
+		
+		<copy todir='${java.generated.src.dir}' failonerror='false'>
+			<fileset dir='${java.main.resources.dir}' includes='**/Constants.java'/>
+			<filterset>
+				<propertyset refid='tool.version' />
+			</filterset>
+		</copy>
+	</target>
+	
+	<target name='process-sources' depends='generate-sources'/>
+	
+	<target name='retrieve-tools' depends='init'>
+	
+	</target>
+	
+	<target name='process-resources' depends='retrieve-tools'>
+		<sync todir='${java.resources.bin.dir}' failonerror='false'>
+			<fileset dir='${lib.dir}' includes='tool/*, license/**'/>			
+		</sync>
+	</target>
+	
+	<target name='compile-java-main' depends='process-sources'>
+		<javac destdir='${java.main.bin.dir}' classpathref='classpath.compile' source='${jvm.version}' target='${jvm.version}' includeantruntime='no' fork='true'>
+			<src path='${java.main.src.dir}' />			
+			<src path='${java.generated.src.dir}'/>
+		</javac>
+		<copy todir="${java.main.bin.dir}">
+			<fileset dir="${java.main.src.dir}" includes="**/antlib.xml" />
+		</copy>
+	</target>
+	
+	<target name='compile' depends='compile-java-main'/>
+	
+
+	<target name='antunit' unless='antunit.skip'>
+		<property name='antunit.log.dir' location='${temp.dir}/antunit/log'/>
+		<condition property='antunit.includes' value='${antunit.testcase}' else='**/*-test.xml'>
+			<isset property='antunit.testcase'/>
+		</condition>
+		<typedef resource='org/opfx/ant/php/antlib.xml' uri='antlib:org.opfx.ant.php'>
+			<classpath>
+				<pathelement location="${java.main.bin.dir}" />
+			</classpath>
+		</typedef>
+		
+		<typedef resource="org/apache/ant/antunit/antlib.xml" uri="antlib:org.apache.ant.antunit" classpathref="classpath.test"/>
+		
+		<mkdir dir='${antunit.log.dir}'/>
+		<mkdir dir='${antunit.report.dir}'/>
+		
+		<au:antunit failonerror='false' errorproperty='antunit.tests.failed'>
+			<fileset dir='${antunit.src.dir}' includes='${antunit.includes}' excludes='${antunit.excludes}' erroronmissingdir='false'/>
+			<au:plainlistener loglevel='${antunit.log.level}'/>
+			<au:xmllistener todir='${antunit.log.dir}'/>
+		</au:antunit>
+		
+		<junitreport todir='${antunit.report.dir}'>
+			<fileset dir='${antunit.log.dir}' includes='TEST-*.xml'/>
+			<report styledir='${test.resources.dir}/xsl' format='${antunit.report.format}' todir='${antunit.report.dir}'>
+				<classpath>
+					<path refid='classpath.test'/>
+				</classpath>
+			</report>
+		</junitreport>		
+	</target>	
+	
+	
+	<target name='process-failed-antunit-tests' depends='antunit' if='antunit.tests.failed' unless='antunit.skip'>
+		<property name="failed.test.dir" location="${temp.dir}/antunit/fail"/>
+		
+		
+		<mkdir dir="${failed.test.dir}"/>
+		
+		<xslt	basedir="${antunit.log.dir}"
+				destdir="${failed.test.dir}"		
+				includes='TEST-*xml'
+				style="${test.resources.dir}/xsl/failed-test.xsl"/>
+		<echo>+-------------------------------------------------------------------------------------</echo>
+		<echo>| FAILING TESTS : </echo>
+		<echo>+-------------------------------------------------------------------------------------</echo>
+		
+		<concat>
+			<fileset dir="${failed.test.dir}">
+				<size value="0" when="more"/>
+			</fileset>
+			<filterchain>
+				<linecontains>
+					<contains value="|"/>
+				</linecontains>
+			</filterchain>
+		</concat>
+		<fail message="There are failing tests"/>
+	</target>
+	
+	<target name='test' depends='compile,process-resources,process-failed-antunit-tests'/>
+	
+	
+	<target name='package-binaries' depends='test'>
+		<jar basedir='${java.main.bin.dir}' destfile='${dist.dir}/${ant.project.name}.jar'/>
+	</target>	
+	<target name='package-sources'/>
+	
+	<target name='package' depends='package-binaries,package-sources'/> 
+
+	<target name='main' depends='package'/>
+	
+	<target name='default' depends='bootstrap'/>
+	
+	<target name='bootstrap'>
+		<available classname='org.apache.ivy.Ivy' property='ivy.available' />
+		<get src='http://central.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar'	 dest='${build.tool.dir}' unless:set='ivy.available' />
+		<antcall target='main'/>
+	</target>
+	
+</project>
