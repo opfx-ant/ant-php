@@ -301,7 +301,7 @@ public abstract class AbstractTask extends Task {
 		// this task (if any)
 		File targetDir = null;
 		if (destDir != null) {
-			targetDir = destFile.getParentFile();
+			targetDir = destDir.getParentFile();
 		}
 		if (destFile != null) {
 			targetDir = destFile.getParentFile();
