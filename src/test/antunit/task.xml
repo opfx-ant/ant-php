@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project name="task" xmlns:unless="ant:unless" xmlns:php="antlib:org.opfx.ant.php" xmlns:au="antlib:org.apache.ant.antunit">
 
-
 	<dirname property='antunit.dir.name' file='${ant.file.task}'/>
 	<property name='antunit.dir' location='${antunit.dir.name}'/>
 	<property name='antunit.resources.dir' location='${antunit.dir}/../resources'/>
 	<property name='antunit.work.dir' location='${antunit.dir}/../../../build/work'/>
 
-
 	 <extension-point name='init'/>	
 
-	
-
 	<target name='setUp' depends='init'>
-		
 		<property name='project.name' value='project'/>
 		
 		<!-- copy test project to the work directory -->
@@ -21,15 +16,17 @@
 		<sync todir='${antunit.work.dir}' overwrite='true'>
 			<fileset dir='${antunit.resources.dir}/php'/>
 		</sync>
-		<var name='basedir' value='${antunit.work.dir}/${project.name}'/>
+		
+		<property name='base.dir' value='${antunit.work.dir}/${project.name}'/>
 		
 		<!-- define the layout of the test project -->
 		
-		<property name='main.src.dir' location='${basedir}/src'/>
-		<property name='test.src.dir' location='${basedir}/tests'/>
-		<property name='build.dir' location='${basedir}/build'/>
+		<property name='main.src.dir' location='${base.dir}/src'/>
+		<property name='test.src.dir' location='${base.dir}/tests'/>
+		<property name='build.dir' location='${base.dir}/build'/>
 		<property name='dist.dir' location='${build.dir}/dist'/>
 		<property name='reports.dir' location='${build.dir}/reports'/>  
+		<property name='bin.dir' location='${build.dir}/bin'/>
 		
 		<au:logcapturer/>
 	</target>
