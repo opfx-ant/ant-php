@@ -41,8 +41,14 @@
  * @link       http://www.github.com/sebastianbergmann/money
  */
 namespace SebastianBergmann\Money;
-
-class MoneyTest extends \PHPUnit_Framework_TestCase
+if (class_exists('PHPUnit_Util_Printer')) {
+	class_alias('PHPUnit_Framework_TestCase', 'TestCase');
+	//class_alias('PHPUnit_Framework_TestResult', 'TestResult');
+} else {
+	// 	class_alias('PHPUnit\TextUI\ResultPrinter', 'ResultPrinter');
+	class_alias('PHPUnit\Framework\TestCase', 'SebastianBergmann\Money\TestCase');
+}
+class MoneyTest extends TestCase
 {
     /**
      * @covers            \SebastianBergmann\Money\Money::__construct

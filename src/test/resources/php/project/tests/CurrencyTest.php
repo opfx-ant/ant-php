@@ -42,7 +42,16 @@
  */
 namespace SebastianBergmann\Money;
 
-class CurrencyTest extends \PHPUnit_Framework_TestCase
+if (class_exists('PHPUnit_Util_Printer')) {
+	class_alias('PHPUnit_Framework_TestCase', 'TestCase');
+	//class_alias('PHPUnit_Framework_TestResult', 'TestResult');
+} else {
+// 	class_alias('PHPUnit\TextUI\ResultPrinter', 'ResultPrinter');
+	//class_alias('PHPUnit\Framework\TestCase', '\TestCase'); to breakit
+	class_alias('PHPUnit\Framework\TestCase', 'SebastianBergmann\Money\TestCase');
+}
+
+class CurrencyTest extends TestCase
 {
     /**
      * @covers            \SebastianBergmann\Money\Currency::__construct

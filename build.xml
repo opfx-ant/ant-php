@@ -81,7 +81,7 @@
 	
 	<target name='compile-java-main' depends='process-sources'>
 		<mkdir dir='${java.main.bin.dir}'/>
-		<javac destdir='${java.main.bin.dir}' classpathref='classpath.compile' source='${jvm.version}' target='${jvm.version}' includeantruntime='no' fork='true'>
+		<javac destdir='${java.main.bin.dir}' classpathref='classpath.compile' source='${jvm.version}' target='${jvm.version}' debug='true' includeantruntime='no' fork='true'>
 			<src path='${java.main.src.dir}' />			
 			<src path='${java.generated.src.dir}'/>
 		</javac>

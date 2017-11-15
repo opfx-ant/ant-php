@@ -33,9 +33,12 @@ public class Unit extends AbstractTask {
 
 	private File bootstrap;
 	private File whitelist;
+	
 	protected DefaultLogger defaultLogger;
 	protected PhpUnitProgressLogger progressLogger;
 	protected ConcurrentHashMap<String, Vector<String>> results;
+	
+	private File resultPrinter;
 
 	private int millies;
 	private double mbytes;
@@ -100,11 +103,20 @@ public class Unit extends AbstractTask {
 
 	protected void process() throws BuildException {
 		log(StringUtils.LINE_SEP);
+		
+		resultPrinter = resolveScript(Constants.SCRIPT_PHPUNITRESULTPRINTER); 
+		// for development purposes only
+		Map<String, String> system =Execute.getEnvironmentVariables();		
+		if(system.get("SCRIPT_PHPUNITRESULTPRINTER")!=null) {
+			resultPrinter = new File(system.get("SCRIPT_PHPUNITRESULTPRINTER")); 
+		}
+		
 		Project project = getProject();
 		Vector<BuildListener> listeners = project.getBuildListeners();
 		for (BuildListener listener : listeners) {
 			if (listener instanceof DefaultLogger) {
 				defaultLogger = (DefaultLogger) listener;
+				break;
 			}
 		}
 		progressLogger = new PhpUnitProgressLogger(defaultLogger);
@@ -130,21 +142,12 @@ public class Unit extends AbstractTask {
 
 	protected void configureArguments(Commandline args) {
 
-		// the following line does not see necessary
-		// args.createArgument().setValue("--no-configuration");
-
 		if (bootstrap != null) {
 			args.createArgument().setValue("--bootstrap");
 			args.createArgument().setFile(bootstrap);
 		}
 		
-		File resultPrinter = resolveScript(Constants.SCRIPT_PHPUNITRESULTPRINTER);
-		
-		// for development purposes only
-		Map<String, String> system =Execute.getEnvironmentVariables();		
-		if(system.get("SCRIPT_PHPUNITRESULTPRINTER")!=null) {
-			resultPrinter = new File(system.get("SCRIPT_PHPUNITRESULTPRINTER"));
-		}
+
 		args.createArgument().setValue("--include-path="+resultPrinter.getParent());
 		args.createArgument().setValue("--printer="+resultPrinter.getName().replace(".php", "")); 
 
@@ -376,12 +379,14 @@ public class Unit extends AbstractTask {
 		boolean readCounters;
 
 		int iterations = 0;
+		private StringBuffer buffer;
 
 		protected ExecutorOutputReader(Reader reader, Unit task) {
 			super(reader);
 			owner = task;
 
-			startPosition = PHPUNIT_LOGO_LENGTH;
+//			startPosition = PHPUNIT_LOGO_LENGTH;
+			startPosition = 0;
 			progressStarted = false;
 			progressStopped = false;
 
@@ -389,6 +394,7 @@ public class Unit extends AbstractTask {
 			results = "";
 			readResources = false;
 			readCounters = false;
+			buffer = new StringBuffer();
 
 		}
 
@@ -411,6 +417,71 @@ public class Unit extends AbstractTask {
 				startPosition = Math.min(startPosition, cc);
 
 				for (int i = startPosition; i < cc; i++) {
+					buffer.append(cbuf[i]);
+					iterations++;
+					// wait for the first newline char
+					if (!progressStarted) {
+						if (cbuf[i] == 43) {
+							progressStarted = true;
+						}
+						continue;
+					}
+
+					if (cbuf[i] == 10) {
+						continue; // ignore new lines
+					}
+
+					if (cbuf[i] == 35) {
+						progressStopped = true;
+						readResources = !readResources;
+						readCounters = readResources ? false : true;
+
+						continue;
+					}
+					if (progressStarted && !progressStopped) {
+						synchronized (owner) {
+							owner.log(String.format("%s", cbuf[i]));
+							continue;
+						}
+					}
+					// read the test resource usage
+					if (readResources) {
+						resources = resources + cbuf[i];
+					}
+					// read the test summary (tests,errors,warnings ...)
+					if (readCounters) {
+						results = results + cbuf[i];
+					}
+
+				}
+
+				startPosition = 0;
+				cc = 0;
+
+			}
+			return -1;
+		}
+
+		public int readx(char cbuf[], int off, int len) throws IOException {
+			int cc = 0;
+			while (cc == 0) {
+				cc = in.read(cbuf, off, len);
+				if (cc == -1) {
+					owner.results.get("resources").add(resources);
+					owner.results.get("counters").add(results);
+					return -1;
+				}
+
+				// skip as much of the php version information as posible
+				// setting the start position to PHP_LOGO_LENGTH as much
+				// of the processed output in terms of chars is the logo;
+				// after the initial iteration reset the startPosition to
+				// zero so any char batches are fully processed
+
+				startPosition = Math.min(startPosition, cc);
+
+				for (int i = startPosition; i < cc; i++) {
+					buffer.append(cbuf[i]);
 					iterations++;
 					// wait for the first newline char
 					if (!progressStarted) {

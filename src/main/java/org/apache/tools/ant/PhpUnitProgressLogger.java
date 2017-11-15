@@ -9,10 +9,13 @@ public class PhpUnitProgressLogger extends DefaultLogger {
 
 	private int messageCount;
 	private int columnCount;
+	private DefaultLogger defaultLogger;
 
 	public PhpUnitProgressLogger(DefaultLogger logger) {
 		super();
+		defaultLogger = logger;
 		out = new PrintStream(logger.out);
+		
 		// err = logger.err;
 		emacsMode = logger.emacsMode;
 		msgOutputLevel = logger.msgOutputLevel;
@@ -89,14 +92,19 @@ public class PhpUnitProgressLogger extends DefaultLogger {
 	 *            A BuildEvent containing message information. Must not be
 	 *            <code>null</code>.
 	 */
-	public void messageLogged(BuildEvent event) {
+	public void messageLogged(BuildEvent event) { 
 
 		int priority = event.getPriority();
+		if(event.getMessage().isEmpty()) {
+			return;
+		}
 		if (priority > msgOutputLevel) {
+			defaultLogger.messageLogged(event);
 			return;
 		}
 		Task task = event.getTask();
 		if (!(task instanceof Unit)) {
+			defaultLogger.messageLogged(event);
 			return;
 		}
 
@@ -116,6 +124,7 @@ public class PhpUnitProgressLogger extends DefaultLogger {
 			break;
 
 		default:
+			defaultLogger.messageLogged(event);
 			return;
 		}
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="default" name="lint-test" basedir="../../../../" xmlns:php="antlib:org.opfx.ant.php" xmlns:au="antlib:org.apache.ant.antunit">
+
+	
+	<import file="../task.xml" as="task" />
+
+	
+	<target name="default" depends='setUp'>
+		<php:phar basedir='${main.src.dir}' destfile='${dist.dir}/sample.phar'/>
+	</target>
+	
+</project>

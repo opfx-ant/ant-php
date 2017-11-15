@@ -65,8 +65,7 @@ public class Lint extends AbstractTask {
 	 * list of files.
 	 */
 	public void setExcludes(final String pattern) {
-		// FIXME
-		// super.setExcludes(pattern);
+		super.setExcludes(pattern);
 	}
 
 	/**
@@ -75,8 +74,7 @@ public class Lint extends AbstractTask {
 	 * the list of files.
 	 */
 	public void setIncludes(final String pattern) {
-		// FIXME
-		// super.setIncludes(pattern);
+		super.setIncludes(pattern);
 	}
 
 	/**
@@ -85,8 +83,7 @@ public class Lint extends AbstractTask {
 	 * @param fs
 	 */
 	public void addFileSet(final FileSet fs) {
-		// FIXME
-		// super.addFileSet(fs);
+		super.addFileSet(fs);
 	}
 
 	/**
