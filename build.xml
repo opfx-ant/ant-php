@@ -24,7 +24,8 @@
 		<ivy:cachepath pathid='classpath.compile' conf='compile'/>
 		-->
 		<ivy:artifactproperty name='version.[module]' value='[revision]' conf='tool'/>
-		<echoproperties prefix='version' destfile='${basedir}/tool.properties'/>		
+		<echoproperties prefix='version' destfile='${basedir}/tool.properties'/>	
+		<property name='tool.version.outofdate' value='true' description='indicates that the Constants.java file needs to be regenerated.'/>
 	</target>	
 	
 	<target name='init' depends='retrieve-dependencies'>
@@ -46,7 +47,8 @@
 			<propertyref prefix="version"/>
 		</propertyset>
 		
-		<copy todir='${java.generated.src.dir}' failonerror='false'>
+		<property name='tool.version.outofdate' value='false'/>
+		<copy todir='${java.generated.src.dir}' overwrite='${tool.version.outofdate}' failonerror='false'>
 			<fileset dir='${java.main.resources.dir}' includes='**/Constants.java'/>
 			<filterset>
 				<propertyset refid='tool.version' />
