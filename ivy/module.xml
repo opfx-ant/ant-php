@@ -34,7 +34,7 @@
 			<artifact name="LICENSE" type="license" ext="" url="https://raw.githubusercontent.com/sebastianbergmann/phpunit/6.4.2/LICENSE"/>
 		</dependency>	
 		
-		<dependency org="theseer" name="phpab" rev="1.22.0" conf="tool->default(*)">
+		<dependency org="theseer" name="phpab" rev="1.24.1" conf="tool->default(*)">
 			<artifact name="phpab" type="tool" ext="phar" url="https://github.com/theseer/Autoload/releases/download/1.22.0/phpab-1.22.0.phar"/>
 			<artifact name="LICENSE" type="license" ext="" url="https://raw.githubusercontent.com/theseer/Autoload/master/LICENSE"/>
 		</dependency>	
